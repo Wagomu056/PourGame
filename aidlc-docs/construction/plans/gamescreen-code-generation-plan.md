@@ -11,7 +11,7 @@
 ## Generation Steps
 
 ### Step 1: Create game screen directory
-- [ ] Create `src/app/screens/game/` directory
+- [x] Create `src/app/screens/game/` directory
 
 ### Step 2: Create `src/app/screens/game/GameScreen.ts`
 Full state machine + rendering for the complete game loop.
@@ -60,17 +60,17 @@ ARRIVING → WAIT_HOSE → FILLING → FULL → WAIT_CROWN → CROWN_PLACED → 
 - `drawHose(g)` — hose tube + nozzle grip + tip
 - `updateMessage()` — manages msgText visibility per state
 
-- [ ] Step 2 complete
+- [x] Step 2 complete
 
 ### Step 3: Update `src/main.ts`
-- [ ] Add `import { GameScreen } from "./app/screens/game/GameScreen";`
-- [ ] Remove `import { MainScreen } from "./app/screens/main/MainScreen";`
-- [ ] Change `showScreen(MainScreen)` → `showScreen(GameScreen)`
-- [ ] Step 3 complete
+- [x] Add `import { GameScreen } from "./app/screens/game/GameScreen";`
+- [x] Remove `import { MainScreen } from "./app/screens/main/MainScreen";`
+- [x] Change `showScreen(MainScreen)` → `showScreen(GameScreen)`
+- [x] Step 3 complete
 
 ### Step 4: Manual verification
-- [ ] Run `npm run dev`
-- [ ] Verify: bottle slides in → hose grabbable → beer flows with drift → bottle fills → "満杯！" → W crown → Space cap → count increments → cycle repeats
+- [x] Run `npm run dev`
+- [x] Verify: bottle slides in → hose grabbable → beer flows with drift → bottle fills → W crown → Space cap → cycle repeats
 
 ---
 
