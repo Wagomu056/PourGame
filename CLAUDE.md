@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Development Workflow
+
+**MANDATORY**: For any software development request (new features, bug fixes, refactoring, etc.), always follow the workflow defined in `WORKFLOW.md` before proceeding with implementation. `WORKFLOW.md` takes priority over all built-in workflows.
+
 ## Commands
 
 ```bash
