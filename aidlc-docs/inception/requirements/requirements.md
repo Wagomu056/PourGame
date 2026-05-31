@@ -86,3 +86,18 @@
 | Wobble expression | Force oscillation only — no sin drift (Cycle 2) | User explicit request |
 | Return zone effects | Removed (Cycle 2) | No longer needed |
 | FULL instruction text | Empty string (Cycle 2) | "満杯！" is sufficient |
+| Force change pattern | Random intervals with lerp (Cycle 3) | Unpredictable gameplay |
+| Force transition style | Smooth lerp with configurable speed (Cycle 3) | Natural flow change, user explicit request |
+
+---
+
+## Cycle 3 Changes
+
+### FR-03 Update — Random Force Intervals (Cycle 3)
+The sin-wave force oscillation (`FORCE_FREQ`) is **REMOVED** and replaced with random-interval force changes:
+
+- A random target force (between `BEER_FORCE_MIN` and `BEER_FORCE_MAX`) is selected at random intervals
+- Interval range: `FORCE_CHANGE_MIN_INTERVAL` (0.5 s) to `FORCE_CHANGE_MAX_INTERVAL` (2.0 s)
+- `currentForce` smoothly interpolates (lerp) toward the target at rate `FORCE_LERP_SPEED` (px/sec per second)
+- All three interval and speed parameters are configurable static constants
+- Gameplay: Player watches the beer arc change unpredictably and adjusts hose position to keep aim on bottle mouth

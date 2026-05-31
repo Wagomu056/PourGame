@@ -32,9 +32,11 @@ const BOTTLE_H = BODY_H + SHOULDER_H + NECK_H + MOUTH_H; // 262
 // ── Beer physics ────────────────────────────────────────────────────────────
 const FILL_RATE = 0.15; // fill fraction per second when stream hits mouth
 const BEER_FORCE_MIN = 60; // px/sec — min horizontal exit velocity (near-vertical arc)
-const BEER_FORCE_MAX = 380; // px/sec — max horizontal exit velocity (wide left arc)
+const BEER_FORCE_MAX = 300; // px/sec — max horizontal exit velocity (wide left arc)
 const BEER_GRAVITY = 700; // px/sec² — gravitational acceleration for beer arc
-const FORCE_FREQ = 1.4; // force oscillation frequency (rad/sec)
+const FORCE_CHANGE_MIN_INTERVAL = 0.75; // seconds — minimum time between random force changes
+const FORCE_CHANGE_MAX_INTERVAL = 2.0; // seconds — maximum time between random force changes
+const FORCE_LERP_SPEED = 150; // px/sec per second — rate at which currentForce approaches targetForce
 
 export class GameScreen extends Container {
   public static assetBundles: string[] = [];
@@ -46,7 +48,8 @@ export class GameScreen extends Container {
   private hoseHeld = false;
   private hoseX = 0;
   private currentForce = BEER_FORCE_MIN;
-  private driftTime = 0;
+  private targetForce = BEER_FORCE_MIN;
+  private forceChangeTimer = 0;
   private cappingTimer = 0;
   private capperOffset = 0; // px arm has moved down
   private bottleX = -120;
@@ -177,7 +180,8 @@ export class GameScreen extends Container {
     this.fillAmount = 0;
     this.hoseHeld = false;
     this.currentForce = BEER_FORCE_MIN;
-    this.driftTime = 0;
+    this.targetForce = BEER_FORCE_MIN;
+    this.forceChangeTimer = 0;
     this.cappingTimer = 0;
     this.capperOffset = 0;
     this.bottleX = -120;
@@ -253,10 +257,18 @@ export class GameScreen extends Container {
   }
 
   private stepFilling(dt: number): void {
-    this.driftTime += dt;
-    const forceNorm = (Math.sin(this.driftTime * FORCE_FREQ) + 1) / 2;
-    this.currentForce =
-      BEER_FORCE_MIN + (BEER_FORCE_MAX - BEER_FORCE_MIN) * forceNorm;
+    this.forceChangeTimer -= dt;
+    if (this.forceChangeTimer <= 0) {
+      this.targetForce =
+        BEER_FORCE_MIN + Math.random() * (BEER_FORCE_MAX - BEER_FORCE_MIN);
+      this.forceChangeTimer =
+        FORCE_CHANGE_MIN_INTERVAL +
+        Math.random() * (FORCE_CHANGE_MAX_INTERVAL - FORCE_CHANGE_MIN_INTERVAL);
+    }
+    const diff = this.targetForce - this.currentForce;
+    const maxStep = FORCE_LERP_SPEED * dt;
+    this.currentForce +=
+      Math.abs(diff) <= maxStep ? diff : Math.sign(diff) * maxStep;
 
     const nozzleX = this.hoseX - 4;
     const nozzleY = this.HOSE_Y + 13;
@@ -358,15 +370,17 @@ export class GameScreen extends Container {
       // Bottle full → release anywhere → snap hose back, advance to crown step
       this.hoseHeld = false;
       this.hoseX = this.HOSE_HOLDER_X;
-      this.driftTime = 0;
       this.currentForce = BEER_FORCE_MIN;
+      this.targetForce = BEER_FORCE_MIN;
+      this.forceChangeTimer = 0;
       this.enterState(State.WAIT_CROWN);
     } else if (this.state === State.FILLING) {
       // Released mid-fill → snap hose back, restart
       this.hoseHeld = false;
       this.hoseX = this.HOSE_HOLDER_X;
-      this.driftTime = 0;
       this.currentForce = BEER_FORCE_MIN;
+      this.targetForce = BEER_FORCE_MIN;
+      this.forceChangeTimer = 0;
       this.enterState(State.WAIT_HOSE);
     }
   }
