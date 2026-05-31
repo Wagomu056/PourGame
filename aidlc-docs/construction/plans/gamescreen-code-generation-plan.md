@@ -1,81 +1,68 @@
-# Code Generation Plan: GameScreen Unit
+# Code Generation Plan: GameScreen Unit (Cycle 2 — Change Request)
 
 ## Unit Context
-- **Unit Name**: GameScreen
-- **Dependencies**: PixiJS v8 (already installed), existing engine/navigation infrastructure
-- **Interfaces**: AppScreen interface (show, hide, reset, resize, update)
-- **Stories Covered**: FR-01 through FR-09 (all game mechanics)
+- **Unit Name**: GameScreen (Cycle 2 modifications)
+- **Target File**: `src/app/screens/game/GameScreen.ts` (MODIFY in-place)
+- **Dependencies**: PixiJS v8 (already installed), existing engine infrastructure
+- **Stories Covered**: FR-03 (Beer Flow updated), FR-04 (Full State updated), FR-05 (Hose Return updated)
 
 ---
 
 ## Generation Steps
 
-### Step 1: Create game screen directory
-- [x] Create `src/app/screens/game/` directory
+### Step 1: Update beer physics constants
+- [x] Remove constants: `DRIFT_FREQ_A`, `DRIFT_FREQ_B`, `DRIFT_AMP_A`, `DRIFT_AMP_B`
+- [x] Add constants: `BEER_FORCE_MIN=80`, `BEER_FORCE_MAX=280`, `BEER_FALL_SPEED=450`, `FORCE_FREQ=1.4`
 
-### Step 2: Create `src/app/screens/game/GameScreen.ts`
-Full state machine + rendering for the complete game loop.
+### Step 2: Update class state variables
+- [x] Remove field: `private drift = 0`
+- [x] Add field: `private currentForce = BEER_FORCE_MIN`
 
-**State Machine**:
-```
-ARRIVING → WAIT_HOSE → FILLING → FULL → WAIT_CROWN → CROWN_PLACED → CAPPING → LEAVING → (loop)
-```
+### Step 3: Update `initGame()` reset
+- [x] `this.currentForce = BEER_FORCE_MIN` and `this.driftTime = 0`
 
-**PixiJS objects** (all Graphics API, no textures):
-- `bg: Graphics` — static background (wood planks, fill zone, conveyor belt); redrawn on resize
-- `world: Graphics` — dynamic game elements (bottle, hose, beer stream, capper); cleared+redrawn each frame
-- `hitSurface: Graphics` — transparent full-screen input capture (eventMode='static')
-- Text objects: `msgText` ("満杯！"), `countText` ("BOTTLES: N"), `instrText` (step instructions), `fillZoneLabel`
+### Step 4: Update `stepFilling()` — force oscillation replaces drift
+- [x] Force oscillation: `forceNorm = (sin(driftTime × FORCE_FREQ) + 1) / 2`
+- [x] Hit detection: `landingOffset = -(currentForce × fallHeight) / BEER_FALL_SPEED`
 
-**Layout** (proportional to sw/sh, recomputed on resize):
-| Constant | Formula | @ 768×1024 |
-|----------|---------|------------|
-| BOTTLE_TARGET_X | sw × 0.36 | 277 |
-| BOTTLE_BOTTOM_Y | sh × 0.75 | 768 |
-| HOSE_HOLDER_X | sw × 0.77 | 591 |
-| HOSE_Y | sh × 0.33 | 338 |
-| HOSE_MIN_X / MAX_X | sw × 0.08 / 0.84 | 61 / 645 |
+### Step 5: Update `onPointerUp()` — auto-return in FULL state
+- [x] FULL state: auto-return on any pointer release, removed `nearHolder` check
+- [x] Method signature changed to `onPointerUp()` (no parameter — not used)
 
-**Bottle geometry** (fixed px):
-- Body: 85w × 165h
-- Shoulder: trapezoid 30h
-- Neck: 32w × 52h
-- Mouth ring: 38w × 15h
-- Total height: 262px → mouth at BOTTLE_BOTTOM_Y - 262
+### Step 6: Update `enterState()` — remove FULL instruction text
+- [x] `[State.FULL]: ""`
 
-**Beer drift formula**: `sin(t × 1.6) × 50 + sin(t × 3.7) × 12 + random(-3, 3)`  
-**Hit detection**: `|hoseX + drift - bottleX| < 16` (half neck width)  
-**Fill rate**: 0.15 per second when hitting  
-**Capper animation**: 0.9s (down 40%, hold 25%, up 35%)  
-**Bottle travel**: 400px/s arriving, 500px/s leaving
+### Step 7: Update `drawHoseHolder()` — remove yellow pulsing ring
+- [x] Entire pulsing ring block deleted
 
-**Rendering methods**:
-- `drawBackground()` — wood-plank bg, fill zone, conveyor belt (called from resize)
-- `drawWorld()` — calls all dynamic drawing methods each frame
-- `drawHoseHolder(g)` — wall bracket + return-zone indicator ring
-- `drawBeerStream(g)` — quadratic curved stream with droplets + splash
-- `drawBottle(g)` — glass body/shoulder/neck/mouth, beer fill, foam, fill gauge bar
-- `drawCrown(g, x, y)` — zigzag crown shape
-- `drawCapper(g)` — guide rails, top bar, moving press head
-- `drawHose(g)` — hose tube + nozzle grip + tip
-- `updateMessage()` — manages msgText visibility per state
+### Step 8: Update `drawHose()` — remove green snap glow
+- [x] Green glow block deleted
 
-- [x] Step 2 complete
+### Step 9: Update `drawBeerStream()` — fan-spray rendering
+- [x] 5-ray fan with parabolic trajectory, center ray opaque, outer rays semi-transparent
+- [x] Droplets along current-force ray
+- [x] Splash at current-force landing position
 
-### Step 3: Update `src/main.ts`
-- [x] Add `import { GameScreen } from "./app/screens/game/GameScreen";`
-- [x] Remove `import { MainScreen } from "./app/screens/main/MainScreen";`
-- [x] Change `showScreen(MainScreen)` → `showScreen(GameScreen)`
-- [x] Step 3 complete
+### Step 10: Update `drawFlowIndicator()` — normalize by force instead of drift
+- [x] `norm = (currentForce - BEER_FORCE_MIN) / (BEER_FORCE_MAX - BEER_FORCE_MIN)`
 
-### Step 4: Manual verification
-- [x] Run `npm run dev`
-- [x] Verify: bottle slides in → hose grabbable → beer flows with drift → bottle fills → W crown → Space cap → cycle repeats
+### Step 11: Verify no references to `drift` remain
+- [x] Only `driftTime` remains (timer variable, correct)
+
+### Step 12: Run lint + type-check
+- [x] `npm run build` — passed (lint ✓, tsc ✓, vite build ✓)
+
+### Step 13: Browser verification
+- [ ] Run `npm run dev` — server started at http://localhost:8081/
+- [ ] Verify: fan-spray renders leftward and oscillates between min and max angle
+- [ ] Verify: filling works when hose positioned correctly
+- [ ] Verify: releasing pointer in FULL state → advances to crown step
+- [ ] Verify: no yellow ring or green glow in FULL state
+- [ ] Verify: no "Return hose" instruction text in FULL state
 
 ---
 
 ## File Summary
-| File | Action | Description |
-|------|--------|-------------|
-| `src/app/screens/game/GameScreen.ts` | CREATE | ~350 lines, complete game implementation |
-| `src/main.ts` | MODIFY | 2 lines changed |
+| File | Action |
+|------|--------|
+| `src/app/screens/game/GameScreen.ts` | MODIFY in-place |

@@ -19,22 +19,28 @@
 - Player grabs the hose by clicking (pointer down) near the holder
 - Beer begins flowing immediately upon grab
 
-### FR-03: Beer Flow & Drift
-- Beer flows downward from hose tip while hose is not docked
-- Beer has periodic + random horizontal drift that changes over time
-  - Formula: `sin(t × 1.6) × 50 + sin(t × 3.7) × 12 + random noise`
-- Beer fills bottle only when stream lands within bottle mouth (±neck-half-width)
-- Beer is wasted (no fill) when stream misses bottle mouth
+### FR-03: Beer Flow & Force (Updated — Cycle 2)
+- Beer flows from the nozzle tip as a fan-shaped spray to the LEFT
+- Two static parameters control the force range:
+  - `BEER_FORCE_MIN` (px/sec): minimum horizontal left velocity
+  - `BEER_FORCE_MAX` (px/sec): maximum horizontal left velocity
+- A third constant `BEER_FALL_SPEED` (px/sec) represents virtual vertical fall speed for offset calculation
+- The current force oscillates smoothly between BEER_FORCE_MIN and BEER_FORCE_MAX using a sin wave
+- The fan spray is rendered as multiple rays fanning from nozzle exit across the full force range
+- Beer fills bottle only when the current-force landing position falls within the bottle mouth (±neck-half-width)
+- The sin-wave drift system (DRIFT_FREQ_A/B, DRIFT_AMP_A/B) is REMOVED; wobble is expressed solely through force oscillation
 
 ### FR-04: Full State
 - Fill gauge reaches 100% → show "満杯！" effect
 - Beer flow stops (fill stays capped at 100%)
-- Player must return hose to holder
+- Instruction text is EMPTY in FULL state (no "Return hose" prompt)
 
-### FR-05: Hose Return
-- Player moves mouse over holder and releases pointer → hose docks, beer stops
-- If player releases pointer outside holder zone **during filling** (before full): hose snaps to holder automatically, state resets to "grab hose"
-- While bottle is full and hose is held: release outside holder zone has no effect (player must bring hose to holder)
+### FR-05: Hose Return (Updated — Cycle 2)
+- When bottle is FULL and player releases pointer (anywhere on screen):
+  - Hose returns to holder automatically
+  - State transitions to WAIT_CROWN
+- If player releases pointer during FILLING (before full): hose snaps to holder automatically, state resets to WAIT_HOSE
+- Yellow pulsing ring and green snap glow effects are REMOVED
 
 ### FR-06: Crown Placement
 - After hose is docked (state = WAIT_CROWN): player presses [W] key
@@ -75,3 +81,8 @@
 | Hose release during fill | Snap back to holder, reset | Simplest UX |
 | Security extension | Disabled | PoC |
 | PBT extension | Disabled | PoC |
+| Beer stream visual | Fan-shaped spray (Cycle 2) | More dramatic visual |
+| Force parameters | Initial velocity min/max (px/sec) (Cycle 2) | Parabolic physics feel |
+| Wobble expression | Force oscillation only — no sin drift (Cycle 2) | User explicit request |
+| Return zone effects | Removed (Cycle 2) | No longer needed |
+| FULL instruction text | Empty string (Cycle 2) | "満杯！" is sufficient |

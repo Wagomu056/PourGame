@@ -31,10 +31,10 @@ const BOTTLE_H = BODY_H + SHOULDER_H + NECK_H + MOUTH_H; // 262
 
 // ── Beer physics ────────────────────────────────────────────────────────────
 const FILL_RATE = 0.15; // fill fraction per second when stream hits mouth
-const DRIFT_FREQ_A = 1.6;
-const DRIFT_FREQ_B = 3.7;
-const DRIFT_AMP_A = 50; // px — primary oscillation
-const DRIFT_AMP_B = 12; // px — secondary oscillation
+const BEER_FORCE_MIN = 60; // px/sec — min horizontal exit velocity (near-vertical arc)
+const BEER_FORCE_MAX = 380; // px/sec — max horizontal exit velocity (wide left arc)
+const BEER_GRAVITY = 700; // px/sec² — gravitational acceleration for beer arc
+const FORCE_FREQ = 1.4; // force oscillation frequency (rad/sec)
 
 export class GameScreen extends Container {
   public static assetBundles: string[] = [];
@@ -45,7 +45,7 @@ export class GameScreen extends Container {
   private fillAmount = 0; // 0..1
   private hoseHeld = false;
   private hoseX = 0;
-  private drift = 0;
+  private currentForce = BEER_FORCE_MIN;
   private driftTime = 0;
   private cappingTimer = 0;
   private capperOffset = 0; // px arm has moved down
@@ -150,12 +150,8 @@ export class GameScreen extends Container {
     this.hitSurface.on("pointerdown", (e: FederatedPointerEvent) =>
       this.onPointerDown(e),
     );
-    this.hitSurface.on("pointerup", (e: FederatedPointerEvent) =>
-      this.onPointerUp(e),
-    );
-    this.hitSurface.on("pointerupoutside", (e: FederatedPointerEvent) =>
-      this.onPointerUp(e),
-    );
+    this.hitSurface.on("pointerup", () => this.onPointerUp());
+    this.hitSurface.on("pointerupoutside", () => this.onPointerUp());
 
     this._onKey = (e: KeyboardEvent) => this.onKeyDown(e);
     window.addEventListener("keydown", this._onKey);
@@ -180,7 +176,7 @@ export class GameScreen extends Container {
     this.bottleCount = 0;
     this.fillAmount = 0;
     this.hoseHeld = false;
-    this.drift = 0;
+    this.currentForce = BEER_FORCE_MIN;
     this.driftTime = 0;
     this.cappingTimer = 0;
     this.capperOffset = 0;
@@ -258,12 +254,16 @@ export class GameScreen extends Container {
 
   private stepFilling(dt: number): void {
     this.driftTime += dt;
-    this.drift =
-      Math.sin(this.driftTime * DRIFT_FREQ_A) * DRIFT_AMP_A +
-      Math.sin(this.driftTime * DRIFT_FREQ_B) * DRIFT_AMP_B +
-      (Math.random() - 0.5) * 6;
+    const forceNorm = (Math.sin(this.driftTime * FORCE_FREQ) + 1) / 2;
+    this.currentForce =
+      BEER_FORCE_MIN + (BEER_FORCE_MAX - BEER_FORCE_MIN) * forceNorm;
 
-    if (Math.abs(this.hoseX + this.drift - this.bottleX) < NECK_W / 2) {
+    const nozzleX = this.hoseX - 4;
+    const nozzleY = this.HOSE_Y + 13;
+    const mouthY = this.BOTTLE_BOTTOM_Y - BOTTLE_H;
+    const tFall = Math.sqrt((2 * (mouthY - nozzleY)) / BEER_GRAVITY);
+    const landingX = nozzleX - this.currentForce * tFall;
+    if (Math.abs(landingX - this.bottleX) < NECK_W / 2) {
       this.fillAmount = Math.min(1, this.fillAmount + FILL_RATE * dt);
     }
     if (this.fillAmount >= 1) {
@@ -319,7 +319,7 @@ export class GameScreen extends Container {
       [State.ARRIVING]: "Get ready...",
       [State.WAIT_HOSE]: "Click the hose holder to grab it  →",
       [State.FILLING]: "Move mouse left/right to fill the bottle!",
-      [State.FULL]: "Bottle full!  Return hose to holder  →",
+      [State.FULL]: "",
       [State.WAIT_CROWN]: "Press  [W]  to place the crown",
       [State.CROWN_PLACED]: "Press  [SPACE]  to cap the bottle!",
     };
@@ -351,25 +351,24 @@ export class GameScreen extends Container {
     }
   }
 
-  private onPointerUp(e: FederatedPointerEvent): void {
+  private onPointerUp(): void {
     if (!this.hoseHeld) return;
-    const nearHolder =
-      Math.hypot(e.global.x - this.HOSE_HOLDER_X, e.global.y - this.HOSE_Y) <
-      80;
 
-    if (this.state === State.FULL && nearHolder) {
-      // Bottle full → player returned hose → proceed to crown step
+    if (this.state === State.FULL) {
+      // Bottle full → release anywhere → snap hose back, advance to crown step
       this.hoseHeld = false;
-      this.drift = 0;
+      this.hoseX = this.HOSE_HOLDER_X;
+      this.driftTime = 0;
+      this.currentForce = BEER_FORCE_MIN;
       this.enterState(State.WAIT_CROWN);
     } else if (this.state === State.FILLING) {
       // Released mid-fill → snap hose back, restart
       this.hoseHeld = false;
       this.hoseX = this.HOSE_HOLDER_X;
-      this.drift = 0;
+      this.driftTime = 0;
+      this.currentForce = BEER_FORCE_MIN;
       this.enterState(State.WAIT_HOSE);
     }
-    // If FULL and NOT near holder: keep hoseHeld=true, player must drag back
   }
 
   private onKeyDown(e: KeyboardEvent): void {
@@ -459,49 +458,43 @@ export class GameScreen extends Container {
 
     // Cradle hook
     g.rect(hx - 2, hy - 16, 10, 32).fill({ color: 0x777777 });
-
-    // Pulsing return-zone ring when bottle is full and hose is held
-    if (this.state === State.FULL && this.hoseHeld) {
-      const pulse = 0.4 + 0.35 * Math.sin(Date.now() / 220);
-      g.circle(hx + 5, hy, 52).fill({ color: 0xffff00, alpha: pulse * 0.18 });
-      g.circle(hx + 5, hy, 52).stroke({
-        color: 0xffff00,
-        width: 2,
-        alpha: pulse,
-      });
-    }
   }
 
   private drawBeerStream(g: Graphics): void {
-    const sx = this.hoseX;
-    const sy = this.HOSE_Y + 22;
+    const sx = this.hoseX - 4; // nozzle exit X
+    const sy = this.HOSE_Y + 13; // nozzle exit Y
     const ey = this.BOTTLE_BOTTOM_Y - BOTTLE_H; // bottle mouth top Y
     if (sy >= ey) return;
 
-    // Segmented stream with quadratic drift offset
-    for (let i = 0; i < 14; i++) {
-      const t0 = i / 14;
-      const t1 = (i + 1) / 14;
-      const x0 = sx + this.drift * t0 * t0;
-      const y0 = sy + (ey - sy) * t0;
-      const x1 = sx + this.drift * t1 * t1;
-      const y1 = sy + (ey - sy) * t1;
+    // Time for beer to fall from nozzle to bottle mouth under gravity
+    const tFall = Math.sqrt((2 * (ey - sy)) / BEER_GRAVITY);
+
+    // Parabolic stream: x = sx - force*t, y = sy + 0.5*g*t²
+    const SEGS = 14;
+    for (let i = 0; i < SEGS; i++) {
+      const t0 = (i / SEGS) * tFall;
+      const t1 = ((i + 1) / SEGS) * tFall;
+      const x0 = sx - this.currentForce * t0;
+      const y0 = sy + 0.5 * BEER_GRAVITY * t0 * t0;
+      const x1 = sx - this.currentForce * t1;
+      const y1 = sy + 0.5 * BEER_GRAVITY * t1 * t1;
       g.moveTo(x0, y0)
         .lineTo(x1, y1)
-        .stroke({ color: 0xffcc33, width: 9 - 4 * t0, alpha: 0.88 });
+        .stroke({ color: 0xffcc33, width: 9 - 5 * (i / SEGS), alpha: 0.88 });
     }
 
-    // Animated droplets travelling down the stream
-    const t = Date.now() / 1000;
+    // Animated droplets travelling along the parabola
+    const now = Date.now() / 1000;
     for (let i = 0; i < 3; i++) {
-      const bt = (t * 1.6 + i * 0.33) % 1;
-      const bx = sx + this.drift * bt * bt;
-      const by = sy + (ey - sy) * bt;
-      g.circle(bx, by, 3 + bt * 3).fill({ color: 0xffee66, alpha: 0.7 });
+      const p = (now * 1.6 + i * 0.33) % 1;
+      const bt = p * tFall;
+      const bx = sx - this.currentForce * bt;
+      const by = sy + 0.5 * BEER_GRAVITY * bt * bt;
+      g.circle(bx, by, 3 + p * 3).fill({ color: 0xffee66, alpha: 0.7 });
     }
 
     // Landing splash when stream hits bottle mouth
-    const landX = sx + this.drift;
+    const landX = sx - this.currentForce * tFall;
     if (Math.abs(landX - this.bottleX) < NECK_W / 2) {
       const ph = Date.now() / 80;
       for (let i = 0; i < 5; i++) {
@@ -658,25 +651,12 @@ export class GameScreen extends Container {
 
     // Beer exit hole
     g.circle(hx - 4, hy + 13, 5).fill({ color: 0x222222 });
-
-    // Green snap-ready glow when near holder while bottle is full
-    if (
-      this.state === State.FULL &&
-      this.hoseHeld &&
-      Math.abs(hx - this.HOSE_HOLDER_X) < 70
-    ) {
-      g.circle(hx + 22, hy, 44).stroke({
-        color: 0x00ff44,
-        width: 3,
-        alpha: 0.85,
-      });
-    }
   }
 
   private drawFlowIndicator(g: Graphics): void {
     const gx = this.sw * 0.38;
-    // Normalize drift to 0..1 range for needle position
-    const norm = Math.max(0, Math.min(1, (this.drift / DRIFT_AMP_A + 1) / 2));
+    const norm =
+      (this.currentForce - BEER_FORCE_MIN) / (BEER_FORCE_MAX - BEER_FORCE_MIN);
     const nx = gx - 72 + norm * 144;
     g.rect(nx - 3, 52, 6, 19).fill({ color: 0xff6644 });
     // Center reference tick
