@@ -2,8 +2,10 @@ import {
   Container,
   FederatedPointerEvent,
   Graphics,
+  Sprite,
   Text,
   TextStyle,
+  Texture,
   type Ticker,
 } from "pixi.js";
 
@@ -25,7 +27,6 @@ const BODY_H = 165;
 const SHOULDER_H = 30;
 const NECK_W = 32;
 const NECK_H = 52;
-const MOUTH_W = 38;
 const MOUTH_H = 15;
 const BOTTLE_H = BODY_H + SHOULDER_H + NECK_H + MOUTH_H; // 262
 
@@ -39,7 +40,7 @@ const FORCE_CHANGE_MAX_INTERVAL = 2.0; // seconds — maximum time between rando
 const FORCE_LERP_SPEED = 150; // px/sec per second — rate at which currentForce approaches targetForce
 
 export class GameScreen extends Container {
-  public static assetBundles: string[] = [];
+  public static assetBundles: string[] = ["game"];
 
   // ── Mutable state ───────────────────────────────────────────────────────
   private state = State.ARRIVING;
@@ -68,7 +69,9 @@ export class GameScreen extends Container {
 
   // ── PixiJS display objects ──────────────────────────────────────────────
   private bg = new Graphics(); // static background, redrawn on resize
-  private world = new Graphics(); // dynamic elements, cleared each frame
+  private world = new Graphics(); // back layer: beer fill (behind bottle sprite)
+  private bottleSprite = new Sprite(); // bottle.png sprite
+  private worldFront = new Graphics(); // front layer: hose, capper, UI
   private hitSurface = new Graphics(); // invisible full-screen input catcher
   private msgText: Text;
   private countText: Text;
@@ -82,6 +85,8 @@ export class GameScreen extends Container {
     super();
     this.addChild(this.bg);
     this.addChild(this.world);
+    this.addChild(this.bottleSprite);
+    this.addChild(this.worldFront);
 
     this.msgText = new Text({
       text: "",
@@ -163,6 +168,10 @@ export class GameScreen extends Container {
   // ── Lifecycle ───────────────────────────────────────────────────────────
 
   public async show(): Promise<void> {
+    this.bottleSprite.texture = Texture.from("bottle.png");
+    this.bottleSprite.anchor.set(0.5, 1);
+    this.bottleSprite.height = BOTTLE_H;
+    this.bottleSprite.scale.x = this.bottleSprite.scale.y;
     this.initGame();
   }
 
@@ -444,21 +453,25 @@ export class GameScreen extends Container {
 
   private drawWorld(): void {
     const g = this.world;
+    const gf = this.worldFront;
     g.clear();
+    gf.clear();
 
-    this.drawHoseHolder(g);
-    if (this.hoseHeld) this.drawBeerStream(g);
-    this.drawBottle(g);
-    this.drawHose(g);
+    this.drawHoseHolder(gf);
+    if (this.hoseHeld) this.drawBeerStream(gf);
+    this.drawBottleFill(g);
+    this.drawBottleFront(gf);
+    this.drawHose(gf);
 
     if (this.state === State.CROWN_PLACED || this.state === State.CAPPING) {
-      this.drawCapper(g);
+      this.drawCapper(gf);
     }
 
     if (this.state === State.FILLING || this.state === State.FULL) {
-      this.drawFlowIndicator(g);
+      this.drawFlowIndicator(gf);
     }
 
+    this.updateBottleSprite();
     this.updateMessage();
   }
 
@@ -522,18 +535,16 @@ export class GameScreen extends Container {
     }
   }
 
-  private drawBottle(g: Graphics): void {
+  private drawBottleFill(g: Graphics): void {
     const x = this.bottleX;
     const bot = this.BOTTLE_BOTTOM_Y;
 
-    // Beer fill (drawn first so glass appears on top)
     if (this.fillAmount > 0) {
       const fh = Math.floor(BODY_H * this.fillAmount);
       g.rect(x - BODY_W / 2 + 4, bot - fh, BODY_W - 8, fh).fill({
         color: 0xffbb22,
         alpha: 0.9,
       });
-      // Foam on top of beer
       if (fh > 10) {
         g.ellipse(x, bot - fh - 6, BODY_W / 2 - 5, 9).fill({
           color: 0xfff8dc,
@@ -541,38 +552,16 @@ export class GameScreen extends Container {
         });
       }
     }
+  }
 
-    // Glass — body
-    g.rect(x - BODY_W / 2, bot - BODY_H, BODY_W, BODY_H)
-      .fill({ color: 0x88ccaa, alpha: 0.32 })
-      .stroke({ color: 0x55aa77, width: 3 });
+  private drawBottleFront(g: Graphics): void {
+    const x = this.bottleX;
+    const bot = this.BOTTLE_BOTTOM_Y;
 
-    // Glass — shoulder (trapezoid)
-    g.poly([
-      x - BODY_W / 2,
-      bot - BODY_H,
-      x + BODY_W / 2,
-      bot - BODY_H,
-      x + NECK_W / 2,
-      bot - BODY_H - SHOULDER_H,
-      x - NECK_W / 2,
-      bot - BODY_H - SHOULDER_H,
-    ])
-      .fill({ color: 0x88ccaa, alpha: 0.32 })
-      .stroke({ color: 0x55aa77, width: 3 });
-
-    // Glass — neck
-    g.rect(x - NECK_W / 2, bot - BODY_H - SHOULDER_H - NECK_H, NECK_W, NECK_H)
-      .fill({ color: 0x88ccaa, alpha: 0.32 })
-      .stroke({ color: 0x55aa77, width: 3 });
-
-    // Mouth ring
-    const mouthY = bot - BOTTLE_H;
-    g.rect(x - MOUTH_W / 2, mouthY, MOUTH_W, MOUTH_H)
-      .fill({ color: 0x55aa77, alpha: 0.5 })
-      .stroke({ color: 0x55aa77, width: 2 });
-
-    if (this.hasCrown) this.drawCrown(g, x, mouthY);
+    if (this.hasCrown) {
+      const mouthY = bot - BOTTLE_H;
+      this.drawCrown(g, x, mouthY);
+    }
 
     // Fill-level gauge bar (right side of bottle)
     const gx = x + BODY_W / 2 + 10;
@@ -584,6 +573,10 @@ export class GameScreen extends Container {
       });
     }
     g.rect(gx, bot - gh, 9, gh).stroke({ color: 0x888888, width: 1 });
+  }
+
+  private updateBottleSprite(): void {
+    this.bottleSprite.position.set(this.bottleX, this.BOTTLE_BOTTOM_Y);
   }
 
   private drawCrown(g: Graphics, x: number, mouthY: number): void {

@@ -200,3 +200,54 @@
 **Files Generated**: build-and-test-summary-cycle3.md
 
 ---
+
+## Workspace Detection — Cycle 4 Start
+**Timestamp**: 2026-06-02T00:00:00Z
+**User Input**: "@raw-assets/game{m}/bottle.png @prompt-doc/Assets/assets-plan.md @prompt-doc/Assets/implementation-plan.md PoCが完了したので実際に画像アセットを反映してみたいです。まずはbottle.pngだけ作ってみました。今のプリミティブな描画から画像を使ったものに変更してください。ワークフローはAI-DLCを使ってください。"
+**AI Response**: Cycle 4 started. Existing project detected. Cycle 3 complete. Starting Requirements Analysis.
+**Context**: User provided bottle.png image asset. Request: replace primitive Graphics bottle drawing with Sprite using bottle.png. manifest.json already has game bundle with bottle.png. public/assets/game/bottle.png exists (AssetPack processed). brownfield continuation.
+
+## Code Generation — Complete (Cycle 4)
+**Timestamp**: 2026-06-02T00:03:00Z
+**Files Modified**: src/app/screens/game/GameScreen.ts
+**Changes**:
+- assetBundles changed from [] to ['game']
+- Added Sprite, Texture imports from pixi.js
+- Added bottleSprite: Sprite and worldFront: Graphics fields
+- Reordered addChild: bg → world → bottleSprite → worldFront → UI → hitSurface
+- show(): set texture/anchor/scale for bottleSprite
+- drawWorld() refactored: g=world(back), gf=worldFront(front)
+- drawBottle() split into drawBottleFill(g) and drawBottleFront(gf)
+- Added updateBottleSprite() for per-frame position sync
+- Removed MOUTH_W constant (no longer used after glass outline removal)
+**Build Status**: SUCCESS — npm run build passed (lint ✓, tsc ✓, vite ✓)
+**Visual Verification**: bottle.png amber glass Sprite renders correctly at game position
+
+---
+
+## Build and Test — Complete (Cycle 4)
+**Timestamp**: 2026-06-02T00:04:00Z
+**Build Status**: SUCCESS
+**Browser Check**: bottle.png Sprite visible, positioned correctly over conveyor, fill gauge bar in front layer
+
+---
+
+## Workflow Planning — Approval (Cycle 4)
+**Timestamp**: 2026-06-02T00:02:00Z
+**AI Prompt**: "Approve & Continue to Code Generation?"
+**User Input**: "Approve & Continue"
+**Status**: Approved
+**Context**: Execution plan for Cycle 4 approved. Proceeding to Code Generation.
+
+---
+
+## Requirements Analysis — Cycle 4
+**Timestamp**: 2026-06-02T00:01:00Z
+**Depth**: Minimal (clear, well-scoped request)
+**Request Type**: Enhancement — replacing Graphics primitive with image Sprite
+**Scope**: Single component (GameScreen.ts)
+**Complexity**: Simple — visual layer restructuring + Sprite integration
+**Extensions**: Security Baseline: No (disabled), Property-Based Testing: No (disabled)
+**Context**: Requirements documented inline. No clarification questions needed — user intent is clear.
+
+---

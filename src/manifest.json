@@ -5,6 +5,45 @@
       "assets": []
     },
     {
+      "name": "game",
+      "assets": [
+        {
+          "alias": [
+            "game/bottle.png",
+            "bottle.png"
+          ],
+          "src": [
+            "game/bottle@0.5x.webp",
+            "game/bottle@0.5x.png",
+            "game/bottle.webp",
+            "game/bottle.png"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "game/beer_fill.png",
+            "beer_fill.png"
+          ],
+          "src": [
+            "game/beer_fill@0.5x.webp",
+            "game/beer_fill@0.5x.png",
+            "game/beer_fill.webp",
+            "game/beer_fill.png"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        }
+      ]
+    },
+    {
       "name": "main",
       "assets": [
         {
