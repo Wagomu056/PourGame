@@ -65,6 +65,18 @@
 - [x] Code Generation (COMPLETED — Cycle 3)
 - [x] Build and Test (COMPLETED — Cycle 3)
 
+## Cycle 5 Stage Progress
+
+### 🔵 INCEPTION PHASE (Cycle 5)
+- [x] Workspace Detection (COMPLETED)
+- [x] Requirements Analysis (COMPLETED — minimal, user override: beer_fill ON TOP of bottle)
+- [x] User Stories (SKIPPED)
+- [x] Workflow Planning (COMPLETED)
+
+### 🟢 CONSTRUCTION PHASE (Cycle 5)
+- [x] Code Generation (COMPLETED — Cycle 5)
+- [x] Build and Test (COMPLETED — Cycle 5)
+
 ## Cycle 4 Stage Progress
 
 ### 🔵 INCEPTION PHASE (Cycle 4)
@@ -83,7 +95,19 @@
 - [x] Code Generation (COMPLETED — Cycle 4)
 - [x] Build and Test (COMPLETED — Cycle 4)
 
+## Cycle 6 Stage Progress
+
+### 🔵 INCEPTION PHASE (Cycle 6)
+- [x] Workspace Detection (COMPLETED)
+- [x] Requirements Analysis (COMPLETED — minimal, 2 questions answered)
+- [x] User Stories (SKIPPED)
+- [x] Workflow Planning (COMPLETED)
+
+### 🟢 CONSTRUCTION PHASE (Cycle 6)
+- [x] Code Generation (COMPLETED — Cycle 6)
+- [x] Build and Test (COMPLETED — Cycle 6)
+
 ## Current Status
-- **Lifecycle Phase**: CONSTRUCTION — COMPLETE (Cycle 4)
+- **Lifecycle Phase**: CONSTRUCTION — COMPLETE (Cycle 6)
 - **Current Stage**: Build and Test — COMPLETE
-- **Status**: Cycle 4 complete. bottle.png Sprite integrated into GameScreen. Amber glass bottle renders correctly over beer fill layer.
+- **Status**: Cycle 6 complete. Static tuning constants added: BOTTLE_Y_OFFSET, BEER_FILL_WIDTH, BEER_FILL_Y_OFFSET, BEER_FILL_FULL_HEIGHT. All physics/hit-detection/splash/foam positions propagate correctly from BOTTLE_BOTTOM_Y.

@@ -30,6 +30,14 @@ const NECK_H = 52;
 const MOUTH_H = 15;
 const BOTTLE_H = BODY_H + SHOULDER_H + NECK_H + MOUTH_H; // 262
 
+// ── Bottle Y offset ──────────────────────────────────────────────────────────
+const BOTTLE_Y_OFFSET = 200; // px added to BOTTLE_BOTTOM_Y in resize() — positive moves bottle down toward conveyor
+
+// ── Beer fill sprite tuning ──────────────────────────────────────────────────
+const BEER_FILL_WIDTH = 160; // px — sprite width (adjust to align with bottle body)
+const BEER_FILL_Y_OFFSET = 10; // px — shift fill UP from BOTTLE_BOTTOM_Y (positive = up)
+const BEER_FILL_FULL_HEIGHT = 165; // px — sprite height when fillAmount = 1.0
+
 // ── Beer physics ────────────────────────────────────────────────────────────
 const FILL_RATE = 0.15; // fill fraction per second when stream hits mouth
 const BEER_FORCE_MIN = 60; // px/sec — min horizontal exit velocity (near-vertical arc)
@@ -69,8 +77,10 @@ export class GameScreen extends Container {
 
   // ── PixiJS display objects ──────────────────────────────────────────────
   private bg = new Graphics(); // static background, redrawn on resize
-  private world = new Graphics(); // back layer: beer fill (behind bottle sprite)
+  private world = new Graphics(); // back layer (reserved for future back elements)
   private bottleSprite = new Sprite(); // bottle.png sprite
+  private beerFillSprite = new Sprite(); // beer_fill.png — on top of bottle
+  private beerFillMask = new Graphics(); // per-frame mask for fill level
   private worldFront = new Graphics(); // front layer: hose, capper, UI
   private hitSurface = new Graphics(); // invisible full-screen input catcher
   private msgText: Text;
@@ -86,6 +96,8 @@ export class GameScreen extends Container {
     this.addChild(this.bg);
     this.addChild(this.world);
     this.addChild(this.bottleSprite);
+    this.addChild(this.beerFillSprite);
+    this.addChild(this.beerFillMask);
     this.addChild(this.worldFront);
 
     this.msgText = new Text({
@@ -172,6 +184,13 @@ export class GameScreen extends Container {
     this.bottleSprite.anchor.set(0.5, 1);
     this.bottleSprite.height = BOTTLE_H;
     this.bottleSprite.scale.x = this.bottleSprite.scale.y;
+
+    this.beerFillSprite.texture = Texture.from("beer_fill.png");
+    this.beerFillSprite.anchor.set(0.5, 1);
+    this.beerFillSprite.width = BEER_FILL_WIDTH;
+    this.beerFillSprite.height = BEER_FILL_FULL_HEIGHT;
+    this.beerFillSprite.mask = this.beerFillMask;
+
     this.initGame();
   }
 
@@ -206,7 +225,7 @@ export class GameScreen extends Container {
     this.sw = width;
     this.sh = height;
     this.BOTTLE_TARGET_X = width * 0.36;
-    this.BOTTLE_BOTTOM_Y = height * 0.75;
+    this.BOTTLE_BOTTOM_Y = height * 0.75 + BOTTLE_Y_OFFSET;
     this.HOSE_HOLDER_X = width * 0.77;
     this.HOSE_Y = height * 0.33;
     this.HOSE_MIN_X = width * 0.08;
@@ -459,7 +478,7 @@ export class GameScreen extends Container {
 
     this.drawHoseHolder(gf);
     if (this.hoseHeld) this.drawBeerStream(gf);
-    this.drawBottleFill(g);
+    this.updateBeerFill();
     this.drawBottleFront(gf);
     this.drawHose(gf);
 
@@ -535,28 +554,38 @@ export class GameScreen extends Container {
     }
   }
 
-  private drawBottleFill(g: Graphics): void {
+  private updateBeerFill(): void {
     const x = this.bottleX;
-    const bot = this.BOTTLE_BOTTOM_Y;
+    const bot = this.BOTTLE_BOTTOM_Y - BEER_FILL_Y_OFFSET;
+    const fh = BEER_FILL_FULL_HEIGHT * this.fillAmount;
 
-    if (this.fillAmount > 0) {
-      const fh = Math.floor(BODY_H * this.fillAmount);
-      g.rect(x - BODY_W / 2 + 4, bot - fh, BODY_W - 8, fh).fill({
-        color: 0xffbb22,
-        alpha: 0.9,
-      });
-      if (fh > 10) {
-        g.ellipse(x, bot - fh - 6, BODY_W / 2 - 5, 9).fill({
-          color: 0xfff8dc,
-          alpha: 0.92,
-        });
-      }
+    this.beerFillSprite.position.set(x, bot);
+    this.beerFillSprite.visible = fh > 0;
+
+    this.beerFillMask.clear();
+    if (fh > 0) {
+      this.beerFillMask
+        .rect(x - BEER_FILL_WIDTH / 2, bot - fh, BEER_FILL_WIDTH, fh)
+        .fill(0xffffff);
     }
   }
 
   private drawBottleFront(g: Graphics): void {
     const x = this.bottleX;
     const bot = this.BOTTLE_BOTTOM_Y;
+
+    // Foam on top of fill (drawn in front layer, above beerFillSprite)
+    if (this.fillAmount > 0) {
+      const fh = BEER_FILL_FULL_HEIGHT * this.fillAmount;
+      if (fh > 10) {
+        g.ellipse(x, bot - BEER_FILL_Y_OFFSET - fh - 6, BODY_W / 2 - 5, 9).fill(
+          {
+            color: 0xfff8dc,
+            alpha: 0.92,
+          },
+        );
+      }
+    }
 
     if (this.hasCrown) {
       const mouthY = bot - BOTTLE_H;

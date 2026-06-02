@@ -232,6 +232,38 @@
 
 ---
 
+## Workflow Planning — Approval (Cycle 5)
+**Timestamp**: 2026-06-02T01:01:00Z
+**User Input**: "Approve & Continue"
+**Status**: Approved
+**Context**: Proceeding to Code Generation for beer_fill.png integration.
+
+---
+
+## Code Generation — Complete (Cycle 5)
+**Timestamp**: 2026-06-02T01:02:00Z
+**Files Modified**: src/app/screens/game/GameScreen.ts
+**Changes**:
+- Added beerFillSprite: Sprite and beerFillMask: Graphics fields
+- addChild order updated: bottleSprite → beerFillSprite → beerFillMask → worldFront
+- show(): beerFillSprite texture/anchor/width/height set; mask assigned
+- Added updateBeerFill(): per-frame position + mask rect update (fillAmount-driven)
+- Removed drawBottleFill() — replaced by sprite+mask
+- Moved foam ellipse drawing from drawBottleFill to drawBottleFront (worldFront layer)
+- drawWorld() updated: drawBottleFill(g) replaced with updateBeerFill()
+**Build Status**: SUCCESS (lint ✓, tsc ✓, vite ✓)
+**Visual Verification**: beer_fill.png renders ON TOP of bottle.png with mask clipping; foam white ellipse visible above fill; fill gauge bar correct
+
+---
+
+## Workspace Detection — Cycle 5 Start
+**Timestamp**: 2026-06-02T01:00:00Z
+**User Input**: "beer_fill.pngを追加してみました。これも実装してください。ただし、計画と違うのはbeer-fill.pngはbottleの上に描画して欲しいということです。"
+**AI Response**: Cycle 5 started. beer_fill.png confirmed in raw-assets and public/assets/game/. manifest.json already includes beer_fill.png in game bundle.
+**Context**: User explicitly requests beer_fill rendered ON TOP of bottle (override of implementation-plan.md which specified behind). Layer order: bottleSprite → beerFillSprite → worldFront.
+
+---
+
 ## Workflow Planning — Approval (Cycle 4)
 **Timestamp**: 2026-06-02T00:02:00Z
 **AI Prompt**: "Approve & Continue to Code Generation?"
@@ -249,5 +281,49 @@
 **Complexity**: Simple — visual layer restructuring + Sprite integration
 **Extensions**: Security Baseline: No (disabled), Property-Based Testing: No (disabled)
 **Context**: Requirements documented inline. No clarification questions needed — user intent is clear.
+
+---
+
+## Workspace Detection — Cycle 6 Start
+**Timestamp**: 2026-06-02T02:00:00Z
+**User Input**: "beer_fillがbottleの横幅と合わなかったり、下からはみ出ていたりします。また、ボトル自体がコンベヤから浮いてます。これらを調整できるようにstaticな変数として定義できるようにしてください。beer_fillは横幅のサイズと、上下の位置オフセット、満タン時の高さを設定できるといいでしょう。ボトルは上下の位置オフセットが調整できるといいです．ボトルの位置オフセットを調整したら、ビンの口の高さなども一緒に代わり、ビールが口に当たった時のスプラッシュやそもそもの当たり判定なども正しくオフセットされるようにしてください。ワークフローはAI-DLCを使ってください"
+**AI Response**: Cycle 6 started. Existing brownfield project detected (Cycle 5 complete). Proceeding to Requirements Analysis.
+**Context**: New change request: add static tuning constants for beer_fill sprite (width, Y offset, full height) and bottle Y offset. All physics/hit-detection/splash derived from BOTTLE_BOTTOM_Y must respect offset.
+
+---
+
+## Code Generation — Complete (Cycle 6)
+**Timestamp**: 2026-06-02T02:03:00Z
+**Files Modified**: src/app/screens/game/GameScreen.ts
+**Changes**:
+- Added BOTTLE_Y_OFFSET constant (applied to BOTTLE_BOTTOM_Y in resize())
+- Added BEER_FILL_WIDTH, BEER_FILL_Y_OFFSET, BEER_FILL_FULL_HEIGHT constants
+- resize(): BOTTLE_BOTTOM_Y = height * 0.75 + BOTTLE_Y_OFFSET
+- show(): beerFillSprite uses BEER_FILL_WIDTH / BEER_FILL_FULL_HEIGHT
+- updateBeerFill(): position uses BEER_FILL_Y_OFFSET; mask uses BEER_FILL_WIDTH / BEER_FILL_FULL_HEIGHT
+- drawBottleFront(): foam Y position uses BEER_FILL_Y_OFFSET + BEER_FILL_FULL_HEIGHT
+**Build Status**: SUCCESS (lint ✓, tsc ✓, vite ✓)
+
+---
+
+## Workflow Planning — Approval (Cycle 6)
+**Timestamp**: 2026-06-02T02:02:00Z
+**User Input**: "Approve & Continue"
+**Status**: Approved
+**Context**: Execution plan approved. Proceeding to Code Generation.
+
+---
+
+## Requirements Analysis — Cycle 6
+**Timestamp**: 2026-06-02T02:01:00Z
+**Depth**: Minimal
+**Request Type**: Enhancement — add static tuning constants for visual positioning
+**Scope**: src/app/screens/game/GameScreen.ts only
+**Questions Asked**: Q1 (beer_fill Y offset direction), Q2 (bottle offset format)
+**User Input**: "B A"
+**Answers**:
+- Q1: B — 上方向のみ（BEER_FILL_Y_OFFSET = 正の値で上にシフト）
+- Q2: A — 加算形式でOK（BOTTLE_Y_OFFSET を BOTTLE_BOTTOM_Y に加算）
+**Context**: No contradictions. Requirements finalized.
 
 ---
