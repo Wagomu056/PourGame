@@ -40,14 +40,14 @@ const BEER_FILL_Y_OFFSET = 10; // px — shift fill UP from BOTTLE_BOTTOM_Y (pos
 const BEER_FILL_FULL_HEIGHT = 165; // px — sprite height when fillAmount = 1.0
 
 // ── Beer foam sprite tuning ──────────────────────────────────────────────────
-const FOAM_ALPHA_START = 0.05; // fillAmount where foam starts fading in (0–1)
-const FOAM_ALPHA_END = 0.1; // fillAmount where foam reaches alpha 1.0
+const FOAM_ALPHA_GAIN_RATE = 2.0; // alpha added per second while stream fills bottle
+const FOAM_ALPHA_DECAY_RATE = 0.8; // alpha removed per second while not filling
 const FOAM_WIDTH_NARROW_START = 0.9; // fillAmount where foam starts narrowing
 const FOAM_WIDTH_NARROW_END = 1.0; // fillAmount where foam reaches minimum width
-const FOAM_WIDTH_SCALE_MIN = 0.75; // minimum horizontal scale at FOAM_WIDTH_NARROW_END
+const FOAM_WIDTH_SCALE_MIN = 0.60; // minimum horizontal scale at FOAM_WIDTH_NARROW_END
 const FOAM_BASE_WIDTH = BODY_W * 0.75; // px — foam sprite width at scale 1.0
 const FOAM_BASE_HEIGHT = 32 * 0.75; // px — foam sprite height at scale 1.0 (adjust with FOAM_BASE_WIDTH for aspect ratio)
-const FOAM_NARROW_RISE = 6; // px — max upward shift when foam narrows at FOAM_WIDTH_NARROW_END
+const FOAM_NARROW_RISE = 8; // px — max upward shift when foam narrows at FOAM_WIDTH_NARROW_END
 
 // ── Beer physics ────────────────────────────────────────────────────────────
 const FILL_RATE = 0.15; // fill fraction per second when stream hits mouth
@@ -75,6 +75,7 @@ export class GameScreen extends Container {
   private bottleX = -120;
   private hasCrown = false;
   private fullTimer = 0;
+  private foamAlpha = 0; // current foam alpha, driven by fill gain/decay
 
   // ── Layout — recomputed in resize() ────────────────────────────────────
   private sw = 768;
@@ -233,6 +234,7 @@ export class GameScreen extends Container {
     this.bottleX = -120;
     this.hasCrown = false;
     this.fullTimer = 0;
+    this.foamAlpha = 0;
     this.hoseX = this.HOSE_HOLDER_X;
     this.countText.text = "BOTTLES: 0";
     this.instrText.text = "";
@@ -273,6 +275,7 @@ export class GameScreen extends Container {
 
   public update(ticker: Ticker): void {
     const dt = ticker.deltaMS / 1000;
+    const prevFill = this.fillAmount;
     switch (this.state) {
       case State.ARRIVING:
         this.stepArriving(dt);
@@ -289,6 +292,11 @@ export class GameScreen extends Container {
       case State.LEAVING:
         this.stepLeaving(dt);
         break;
+    }
+    if (this.fillAmount > prevFill) {
+      this.foamAlpha = Math.min(1, this.foamAlpha + FOAM_ALPHA_GAIN_RATE * dt);
+    } else {
+      this.foamAlpha = Math.max(0, this.foamAlpha - FOAM_ALPHA_DECAY_RATE * dt);
     }
     this.drawWorld();
   }
@@ -593,16 +601,11 @@ export class GameScreen extends Container {
   private updateBeerFoam(): void {
     const fh = BEER_FILL_FULL_HEIGHT * this.fillAmount;
 
-    if (this.fillAmount < FOAM_ALPHA_START || fh <= 0) {
+    if (this.foamAlpha <= 0 || fh <= 0) {
       this.beerFoamSprite.visible = false;
       return;
     }
 
-    const alphaT = Math.min(
-      1,
-      (this.fillAmount - FOAM_ALPHA_START) /
-        (FOAM_ALPHA_END - FOAM_ALPHA_START),
-    );
     const narrowT = Math.min(
       1,
       Math.max(
@@ -614,7 +617,7 @@ export class GameScreen extends Container {
     const widthScale = 1.0 - (1.0 - FOAM_WIDTH_SCALE_MIN) * narrowT;
 
     this.beerFoamSprite.visible = true;
-    this.beerFoamSprite.alpha = alphaT;
+    this.beerFoamSprite.alpha = this.foamAlpha;
     this.beerFoamSprite.width = FOAM_BASE_WIDTH * widthScale;
     this.beerFoamSprite.position.set(
       this.bottleX,
