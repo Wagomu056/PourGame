@@ -26,6 +26,23 @@
         },
         {
           "alias": [
+            "game/beer_foam.png",
+            "beer_foam.png"
+          ],
+          "src": [
+            "game/beer_foam@0.5x.webp",
+            "game/beer_foam@0.5x.png",
+            "game/beer_foam.webp",
+            "game/beer_foam.png"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
+        },
+        {
+          "alias": [
             "game/bottle.png",
             "bottle.png"
           ],

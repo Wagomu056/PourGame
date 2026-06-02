@@ -6,8 +6,8 @@
             "inheritedMetaData": {},
             "transformData": {},
             "stats": {
-                "date": 1780411582388,
-                "duration": 6.473333000030834,
+                "date": 1780416364082,
+                "duration": 10.06150000076741,
                 "success": true
             }
         },
@@ -20,8 +20,8 @@
             "inheritedMetaData": {},
             "transformData": {},
             "stats": {
-                "date": 1780411582389,
-                "duration": 6.637667000002693,
+                "date": 1780416364082,
+                "duration": 9.947832999750972,
                 "success": true
             }
         },
@@ -124,6 +124,111 @@
         "/Users/takuya/git-projects/PourGame/public/assets/game/beer_fill@0.5x.webp": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/game{m}/beer_fill@0.5x.webp",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/takuya/git-projects/PourGame/raw-assets/game{m}/beer_foam.png": {
+            "isFolder": false,
+            "parent": "/Users/takuya/git-projects/PourGame/raw-assets/game{m}",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1780416364082,
+                "duration": 43.063000000081956,
+                "success": true
+            },
+            "hash": "EHvaVg"
+        },
+        ".assetpack/mipmap/game{m}/beer_foam.png": {
+            "isFolder": false,
+            "transformParent": "/Users/takuya/git-projects/PourGame/raw-assets/game{m}/beer_foam.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/game{m}/beer_foam.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/game{m}/beer_foam.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/takuya/git-projects/PourGame/public/assets/game/beer_foam.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/game{m}/beer_foam.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/game{m}/beer_foam.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/game{m}/beer_foam.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/takuya/git-projects/PourGame/public/assets/game/beer_foam.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/game{m}/beer_foam.webp",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/mipmap/game{m}/beer_foam@0.5x.png": {
+            "isFolder": false,
+            "transformParent": "/Users/takuya/git-projects/PourGame/raw-assets/game{m}/beer_foam.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/game{m}/beer_foam@0.5x.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/game{m}/beer_foam@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/takuya/git-projects/PourGame/public/assets/game/beer_foam@0.5x.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/game{m}/beer_foam@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/game{m}/beer_foam@0.5x.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/game{m}/beer_foam@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/takuya/git-projects/PourGame/public/assets/game/beer_foam@0.5x.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/game{m}/beer_foam@0.5x.webp",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true
