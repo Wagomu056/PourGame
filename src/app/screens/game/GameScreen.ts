@@ -31,7 +31,8 @@ const MOUTH_H = 15;
 const BOTTLE_H = BODY_H + SHOULDER_H + NECK_H + MOUTH_H; // 262
 
 // ── Bottle Y offset ──────────────────────────────────────────────────────────
-const BOTTLE_Y_OFFSET = 200; // px added to BOTTLE_BOTTOM_Y in resize() — positive moves bottle down toward conveyor
+const CONVEYOR_Y_OFFSET = 50; // px — shift conveyor + floor independently (positive = down)
+const BOTTLE_Y_OFFSET = CONVEYOR_Y_OFFSET + 25; // px added to BOTTLE_BOTTOM_Y in resize() — positive moves bottle down toward conveyor
 
 // ── Beer fill sprite tuning ──────────────────────────────────────────────────
 const BEER_FILL_WIDTH = 160; // px — sprite width (adjust to align with bottle body)
@@ -70,6 +71,7 @@ export class GameScreen extends Container {
   private sh = 1024;
   private BOTTLE_TARGET_X = 277;
   private BOTTLE_BOTTOM_Y = 768;
+  private conveyorY = 778;
   private HOSE_HOLDER_X = 591;
   private HOSE_Y = 338;
   private HOSE_MIN_X = 61;
@@ -226,6 +228,7 @@ export class GameScreen extends Container {
     this.sh = height;
     this.BOTTLE_TARGET_X = width * 0.36;
     this.BOTTLE_BOTTOM_Y = height * 0.75 + BOTTLE_Y_OFFSET;
+    this.conveyorY = height * 0.75 + 10 + CONVEYOR_Y_OFFSET;
     this.HOSE_HOLDER_X = width * 0.77;
     this.HOSE_Y = height * 0.33;
     this.HOSE_MIN_X = width * 0.08;
@@ -453,7 +456,7 @@ export class GameScreen extends Container {
     g.rect(14, sh * 0.16, 108, 30).stroke({ color: 0x9b7a40, width: 2 });
 
     // Conveyor belt
-    const cy = this.BOTTLE_BOTTOM_Y + 10;
+    const cy = this.conveyorY;
     g.rect(0, cy, sw * 0.6, 26).fill({ color: 0x444444 });
     for (let x = 0; x < sw * 0.6; x += 42) {
       g.rect(x + 1, cy, 19, 26).fill({ color: 0x3a3a3a });
