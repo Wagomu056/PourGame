@@ -57,6 +57,23 @@
               "m": true
             }
           }
+        },
+        {
+          "alias": [
+            "game/crawn_cap.png",
+            "crawn_cap.png"
+          ],
+          "src": [
+            "game/crawn_cap@0.5x.webp",
+            "game/crawn_cap@0.5x.png",
+            "game/crawn_cap.webp",
+            "game/crawn_cap.png"
+          ],
+          "data": {
+            "tags": {
+              "m": true
+            }
+          }
         }
       ]
     },

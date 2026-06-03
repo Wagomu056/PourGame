@@ -1,5 +1,25 @@
 # AI-DLC Audit Log
 
+## Cycle 8 — Workspace Detection
+**Timestamp**: 2026-06-03T00:00:00Z
+**User Input**: "crawn_cap.pngを追加したので、今のPoCのプリミティブな描画をこの画像に置き換えてください。その際、キャップの大きさがビンの口と合っていないかもしれないので、後で私が目で見て調整できるように拡大縮小率をstaticな変数で定義して調整できるようにしておいてください。AI-DLCを使ってください"
+**AI Response**: Cycle 8 started. crawn_cap.png (64x64px) detected in raw-assets/game{m}/. Not yet in manifest or public/assets. Plan: replace drawCrown() Graphics with Sprite, add CROWN_CAP_SCALE constant.
+**Context**: Brownfield, existing project. Proceeding to Requirements Analysis → Code Generation.
+
+---
+
+## Cycle 8 — Requirements Analysis
+**Timestamp**: 2026-06-03T00:01:00Z
+**AI Response**: Minimal depth. Requirements: (1) Replace drawCrown() Graphics primitive with crawn_cap.png Sprite; (2) Add CROWN_CAP_SCALE static constant (initial value 0.6, ≈38px matching original cw=38); (3) Update manifest.json to register asset. Proceeding to Code Generation.
+
+---
+
+## Cycle 8 — Code Generation Plan
+**Timestamp**: 2026-06-03T00:02:00Z
+**AI Response**: Plan: update manifest.json + GameScreen.ts (add Sprite field, load texture, replace drawCrown with sprite positioning, add CROWN_CAP_SCALE constant). Proceeding to Part 2 Generation.
+
+---
+
 ## Workspace Detection
 **Timestamp**: 2026-05-30T00:00:00Z
 **User Input**: "@prompt-doc/PoC/spec.md @prompt-doc/PoC/game-design.png AI-DLCを使って、spec.mdとgame-design.pngを参考にこのゲームのPoCを作成してください。PoCであるため、豪華なアセットは不要で、プリミティブな描画でOKです。"

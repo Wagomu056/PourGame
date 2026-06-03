@@ -39,6 +39,10 @@ const BEER_FILL_WIDTH = 160; // px — sprite width (adjust to align with bottle
 const BEER_FILL_Y_OFFSET = 10; // px — shift fill UP from BOTTLE_BOTTOM_Y (positive = up)
 const BEER_FILL_FULL_HEIGHT = 165; // px — sprite height when fillAmount = 1.0
 
+// ── Crown cap sprite tuning ──────────────────────────────────────────────────
+const CROWN_CAP_SCALE = 0.6; // scale multiplier for crawn_cap.png (64px × 0.6 ≈ 38px); adjust to fit bottle mouth
+const CROWN_CAP_Y_OFFSET = 24; // px — vertical position offset (positive = down, negative = up); adjust if cap floats or sinks
+
 // ── Beer foam sprite tuning ──────────────────────────────────────────────────
 const FOAM_ALPHA_GAIN_RATE = 2.0; // alpha added per second while stream fills bottle
 const FOAM_ALPHA_DECAY_RATE = 0.8; // alpha removed per second while not filling
@@ -95,6 +99,7 @@ export class GameScreen extends Container {
   private beerFillSprite = new Sprite(); // beer_fill.png — on top of bottle
   private beerFillMask = new Graphics(); // per-frame mask for fill level
   private beerFoamSprite = new Sprite(); // beer_foam.png — on top of fill
+  private crownCapSprite = new Sprite(); // crawn_cap.png — crown cap on bottle mouth
   private worldFront = new Graphics(); // front layer: hose, capper, UI
   private hitSurface = new Graphics(); // invisible full-screen input catcher
   private msgText: Text;
@@ -113,6 +118,7 @@ export class GameScreen extends Container {
     this.addChild(this.beerFillSprite);
     this.addChild(this.beerFillMask);
     this.addChild(this.beerFoamSprite);
+    this.addChild(this.crownCapSprite);
     this.addChild(this.worldFront);
 
     this.msgText = new Text({
@@ -209,6 +215,11 @@ export class GameScreen extends Container {
     this.beerFoamSprite.texture = Texture.from("beer_foam.png");
     this.beerFoamSprite.anchor.set(0.5, 0.5);
     this.beerFoamSprite.height = FOAM_BASE_HEIGHT;
+
+    this.crownCapSprite.texture = Texture.from("crawn_cap.png");
+    this.crownCapSprite.anchor.set(0.5, 1);
+    this.crownCapSprite.scale.set(CROWN_CAP_SCALE);
+    this.crownCapSprite.visible = false;
 
     this.initGame();
   }
@@ -632,9 +643,10 @@ export class GameScreen extends Container {
     const x = this.bottleX;
     const bot = this.BOTTLE_BOTTOM_Y;
 
+    const mouthY = bot - BOTTLE_H;
+    this.crownCapSprite.visible = this.hasCrown;
     if (this.hasCrown) {
-      const mouthY = bot - BOTTLE_H;
-      this.drawCrown(g, x, mouthY);
+      this.crownCapSprite.position.set(x, mouthY + CROWN_CAP_Y_OFFSET);
     }
 
     // Fill-level gauge bar (right side of bottle)
@@ -651,28 +663,6 @@ export class GameScreen extends Container {
 
   private updateBottleSprite(): void {
     this.bottleSprite.position.set(this.bottleX, this.BOTTLE_BOTTOM_Y);
-  }
-
-  private drawCrown(g: Graphics, x: number, mouthY: number): void {
-    const cw = 38;
-    const ch = 16;
-    const baseY = mouthY - ch; // crown base top (sits on bottle mouth)
-    const pts = 5;
-    const pw = cw / pts;
-    const ph = 13; // point height above base
-
-    // Base
-    g.rect(x - cw / 2, baseY, cw, ch)
-      .fill({ color: 0xcccccc })
-      .stroke({ color: 0x888888, width: 2 });
-
-    // Zigzag points
-    for (let i = 0; i < pts; i++) {
-      const px = x - cw / 2 + i * pw;
-      g.poly([px, baseY, px + pw / 2, baseY - ph, px + pw, baseY]).fill({
-        color: 0xdddddd,
-      });
-    }
   }
 
   private drawCapper(g: Graphics): void {

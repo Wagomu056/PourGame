@@ -6,8 +6,8 @@
             "inheritedMetaData": {},
             "transformData": {},
             "stats": {
-                "date": 1780496146350,
-                "duration": 0.4898749999993015,
+                "date": 1780497345797,
+                "duration": 3.654457999999977,
                 "success": true
             }
         },
@@ -20,8 +20,8 @@
             "inheritedMetaData": {},
             "transformData": {},
             "stats": {
-                "date": 1780496146350,
-                "duration": 0.47008299999288283,
+                "date": 1780497345798,
+                "duration": 5.156041999999843,
                 "success": true
             }
         },
@@ -334,6 +334,111 @@
         "/Users/takuya/git-projects/PourGame/public/assets/game/bottle@0.5x.webp": {
             "isFolder": false,
             "transformParent": ".assetpack/compress/game{m}/bottle@0.5x.webp",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/takuya/git-projects/PourGame/raw-assets/game{m}/crawn_cap.png": {
+            "isFolder": false,
+            "parent": "/Users/takuya/git-projects/PourGame/raw-assets/game{m}",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {},
+            "stats": {
+                "date": 1780497345798,
+                "duration": 33.392917000000125,
+                "success": true
+            },
+            "hash": "OYSY7Q"
+        },
+        ".assetpack/mipmap/game{m}/crawn_cap.png": {
+            "isFolder": false,
+            "transformParent": "/Users/takuya/git-projects/PourGame/raw-assets/game{m}/crawn_cap.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/game{m}/crawn_cap.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/game{m}/crawn_cap.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/takuya/git-projects/PourGame/public/assets/game/crawn_cap.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/game{m}/crawn_cap.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/game{m}/crawn_cap.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/game{m}/crawn_cap.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/takuya/git-projects/PourGame/public/assets/game/crawn_cap.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/game{m}/crawn_cap.webp",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/mipmap/game{m}/crawn_cap@0.5x.png": {
+            "isFolder": false,
+            "transformParent": "/Users/takuya/git-projects/PourGame/raw-assets/game{m}/crawn_cap.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/game{m}/crawn_cap@0.5x.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/game{m}/crawn_cap@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/takuya/git-projects/PourGame/public/assets/game/crawn_cap@0.5x.png": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/game{m}/crawn_cap@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        ".assetpack/compress/game{m}/crawn_cap@0.5x.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/mipmap/game{m}/crawn_cap@0.5x.png",
+            "metaData": {},
+            "inheritedMetaData": {
+                "m": true
+            },
+            "transformData": {}
+        },
+        "/Users/takuya/git-projects/PourGame/public/assets/game/crawn_cap@0.5x.webp": {
+            "isFolder": false,
+            "transformParent": ".assetpack/compress/game{m}/crawn_cap@0.5x.webp",
             "metaData": {},
             "inheritedMetaData": {
                 "m": true

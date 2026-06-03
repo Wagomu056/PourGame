@@ -119,7 +119,19 @@
 - [x] Code Generation (COMPLETED — Cycle 7)
 - [x] Build and Test (COMPLETED — Cycle 7)
 
+## Cycle 8 Stage Progress
+
+### 🔵 INCEPTION PHASE (Cycle 8)
+- [x] Workspace Detection (COMPLETED)
+- [x] Requirements Analysis (COMPLETED — minimal, crown cap sprite replacement)
+- [x] User Stories (SKIPPED — no user interaction changes)
+- [x] Workflow Planning (COMPLETED)
+
+### 🟢 CONSTRUCTION PHASE (Cycle 8)
+- [x] Code Generation (COMPLETED — Cycle 8)
+- [x] Build and Test (COMPLETED — Cycle 8: lint + tsc clean)
+
 ## Current Status
-- **Lifecycle Phase**: CONSTRUCTION — COMPLETE (Cycle 7)
+- **Lifecycle Phase**: CONSTRUCTION — COMPLETE (Cycle 8)
 - **Current Stage**: Build and Test — COMPLETE
-- **Status**: Cycle 7 complete. beer_foam.png Sprite added. Static tuning constants added: FOAM_ALPHA_START, FOAM_ALPHA_END, FOAM_WIDTH_NARROW_START, FOAM_WIDTH_NARROW_END, FOAM_WIDTH_SCALE_MIN, FOAM_BASE_WIDTH. Old Graphics ellipse foam replaced with updateBeerFoam() method.
+- **Status**: Cycle 8 complete. crawn_cap.png Sprite added replacing drawCrown() Graphics. Static CROWN_CAP_SCALE = 0.6 added for visual tuning. manifest.json updated to include crawn_cap.png in "game" bundle. Note: AssetPack must process raw-assets on next `npm run dev` to generate public/assets/game/crawn_cap.png.
