@@ -6,8 +6,8 @@
             "inheritedMetaData": {},
             "transformData": {},
             "stats": {
-                "date": 1780416364082,
-                "duration": 10.06150000076741,
+                "date": 1780496146350,
+                "duration": 0.4898749999993015,
                 "success": true
             }
         },
@@ -20,8 +20,8 @@
             "inheritedMetaData": {},
             "transformData": {},
             "stats": {
-                "date": 1780416364082,
-                "duration": 9.947832999750972,
+                "date": 1780496146350,
+                "duration": 0.47008299999288283,
                 "success": true
             }
         },
@@ -139,11 +139,11 @@
             },
             "transformData": {},
             "stats": {
-                "date": 1780416364082,
-                "duration": 43.063000000081956,
+                "date": 1780496146350,
+                "duration": 31.053209000005154,
                 "success": true
             },
-            "hash": "EHvaVg"
+            "hash": "9JuRCA"
         },
         ".assetpack/mipmap/game{m}/beer_foam.png": {
             "isFolder": false,
